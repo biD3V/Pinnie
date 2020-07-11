@@ -1,7 +1,36 @@
 #import "Tweak.h"
-#import "PHPinController.m"
-#import "PHTableViewCell.m"
-#import "PHCollectionViewCell.m"
+#import "PHPinController.h"
+#import "PHTableViewCell.h"
+#import "PHCollectionViewCell.h"
+
+void restoreDefaults() {
+    if (!userDefaults) return;
+    pinnedMessagesIDsKey = @"com.bid3v.pinnie.pinnedmessagesids";
+    pinnedMessagesIDs = [userDefaults arrayForKey:pinnedMessagesIDsKey] ? [[userDefaults arrayForKey:pinnedMessagesIDsKey] mutableCopy] : [NSMutableArray new];
+}
+
+void persistDefaults() {
+    if (!userDefaults) return;
+    [userDefaults setObject:pinnedMessagesIDs forKey:pinnedMessagesIDsKey];
+}
+
+void loadPrefs() {
+    PNESyncPrefs();
+    
+    
+    NSLog(@"[PinniePrefs] %@", PNESettings);
+    PNEIntPref(layout, PinLayout, 0);
+    PNEIntPref(avatarSize, AvatarSize, 1);
+    PNEBoolPref(pinsEnabled, PinsEnabled, YES);
+    PNEBoolPref(dropGlowEnabled, DrowGlowEnabled, YES);
+    PNEFloatPref(dropGlowAlpha, GlowAlpha, 0.75);
+}
+
+void reloadTable () {
+    [NSNotificationCenter.defaultCenter postNotificationName:@"ReloadTable"
+                                                      object:nil
+                                                    userInfo:nil];
+}
 
 @interface CKConversationListController : UITableViewController
 

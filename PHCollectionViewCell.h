@@ -6,6 +6,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Tweak.h"
+#import "PHPinController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

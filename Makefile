@@ -9,7 +9,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = Pinnie
 
-Pinnie_FILES = Tweak.x
+Pinnie_FILES = Tweak.x $(wildcard *.m)
 Pinnie_CFLAGS = -fobjc-arc
 Pinnie_PRIVATE_FRAMEWORKS = ChatKit Contacts
 

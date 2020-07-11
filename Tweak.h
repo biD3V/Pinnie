@@ -1,21 +1,15 @@
-static NSUserDefaults *userDefaults;
-static NSMutableArray *pinnedMessagesIDs;
-static NSString *pinnedMessagesIDsKey = @"com.bid3v.pinnie.pinnedmessagesids";
-static int layout;
-static int avatarSize;
-static BOOL pinsEnabled;
-static BOOL dropGlowEnabled;
-static float dropGlowAlpha;
+NSUserDefaults *userDefaults;
+NSMutableArray *pinnedMessagesIDs;
+NSString *pinnedMessagesIDsKey;
+int layout;
+int avatarSize;
+BOOL pinsEnabled;
+BOOL dropGlowEnabled;
+float dropGlowAlpha;
 
-static void restoreDefaults() {
-    if (!userDefaults) return;
-    pinnedMessagesIDs = [userDefaults arrayForKey:pinnedMessagesIDsKey] ? [[userDefaults arrayForKey:pinnedMessagesIDsKey] mutableCopy] : [NSMutableArray new];
-}
+extern void restoreDefaults();
 
-static void persistDefaults() {
-    if (!userDefaults) return;
-    [userDefaults setObject:pinnedMessagesIDs forKey:pinnedMessagesIDsKey];
-}
+extern void persistDefaults();
 
 #define PNEPreferencePath @"/User/Library/Preferences/com.bid3v.pinnieprefs.plist"
 
@@ -44,23 +38,9 @@ NSDictionary *PNESettings = [NSDictionary dictionaryWithContentsOfFile:PNEPrefer
 
 
 
-static void loadPrefs() {
-    PNESyncPrefs();
-    
-    
-    NSLog(@"[PinniePrefs] %@", PNESettings);
-    PNEIntPref(layout, PinLayout, 0);
-    PNEIntPref(avatarSize, AvatarSize, 1);
-    PNEBoolPref(pinsEnabled, PinsEnabled, YES);
-    PNEBoolPref(dropGlowEnabled, DrowGlowEnabled, YES);
-    PNEFloatPref(dropGlowAlpha, GlowAlpha, 0.75);
-}
+extern void loadPrefs();
 
-static void reloadTable () {
-    [NSNotificationCenter.defaultCenter postNotificationName:@"ReloadTable"
-                                                      object:nil
-                                                    userInfo:nil];
-}
+extern void reloadTable();
 
 @interface CNContact : NSObject
 @end

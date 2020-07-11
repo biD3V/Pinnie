@@ -5,6 +5,7 @@
 //  Created by Sawyer Jester on 6/27/20.
 //
 
+#import "Tweak.h"
 #import "PHTableViewCell.h"
 
 @implementation PHTableViewCell

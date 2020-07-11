@@ -6,8 +6,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "PHCollectionViewCell.m"
-#import "PHPinController.m"
+#import "PHCollectionViewCell.h"
+#import "PHPinController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

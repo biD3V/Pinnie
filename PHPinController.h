@@ -5,6 +5,8 @@
 //  Created by Sawyer Jester on 6/28/20.
 //
 
+#import "Tweak.h"
+
 @interface PHPinController : NSObject
 
 @property (nonatomic) NSMutableArray *pinnedMessages;
