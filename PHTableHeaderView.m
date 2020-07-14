@@ -6,9 +6,9 @@
 //
 
 #import "Tweak.h"
-#import "PHTableViewCell.h"
+#import "PHTableHeaderView.h"
 
-@implementation PHTableViewCell
+@implementation PHTableHeaderView
 
 @synthesize pins;
 
@@ -16,13 +16,47 @@ CGFloat viewWidth;
 CGFloat spacing;
 
 +(instancetype)sharedInstance {
-    static PHTableViewCell *sharedInstance = nil;
+    static PHTableHeaderView *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[PHTableViewCell alloc] init];
+        sharedInstance = [[PHTableHeaderView alloc] init];
         // Do any other initialisation stuff here
     });
     return sharedInstance;
+}
+
+- (instancetype)init {
+    self = [super init];
+    pins = [[PHPinController sharedInstance] pinnedMessages];
+    NSBundle *bundle = [[NSBundle alloc] initWithPath:@"/Library/Application Support/Pinnie/Pinnie.bundle"];
+    self = [bundle loadNibNamed:@"PHTableHeaderView"
+                          owner:self
+                        options:nil].firstObject;
+    return self;
+}
+
+- (CGFloat)heightForPins:(NSMutableArray *)pinConvos {
+    CGFloat height;
+    UITableView *tableView = (UITableView *)self.superview;
+    CGFloat width = tableView.frame.size.width;
+    CGFloat pinCount = pinConvos.count;
+    NSLog(@"[Pinnie] pinConvos.count = %f", pinCount);
+    NSLog(@"[Pinnie] layout = %d", layout);
+    if (layout == 0) {
+        if (pinCount == 0) {
+            height = 0;
+        } else if (pinCount <= 3 && pinCount != 0) {
+            height = width * 7 / 16;
+        } else if (pinCount <= 6 && pinCount > 3) {
+            height = width * 3 / 4;
+        } else {
+            height = width;
+        }
+    } else {
+        height = width * .3;
+    }
+    NSLog(@"[Pinnie] pins = %@", pins);
+    return height;
 }
 
 -(void)layoutSubviews {
@@ -71,12 +105,6 @@ CGFloat spacing;
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
     [self.collectionView registerNib:[UINib nibWithNibName:@"PHCollectionViewCell" bundle:[[NSBundle alloc] initWithPath:@"/Library/Application Support/Pinnie/Pinnie.bundle"]] forCellWithReuseIdentifier:@"phCollectionCell"];
-}
-
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
 }
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -155,7 +183,8 @@ CGFloat spacing;
         PHPinController *pinsController = [PHPinController sharedInstance];
         [pinsController conversation:cell.conversation
                            setPinned:false];
-        
+//        NSDictionary *dict = [NSDictionary dictionaryWithObject:self
+//                                                         forKey:@"header"];
         [NSNotificationCenter.defaultCenter postNotificationName:@"PinRemoved"
                                                           object:nil
                                                         userInfo:nil];

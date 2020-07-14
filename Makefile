@@ -3,7 +3,7 @@ INSTALL_TARGET_PROCESSES = MobileSMS Preferences
 TARGET = iphone:clang:13.0:11.0
 ARCHS = arm64 arm64e
 
-SYSROOT = $(THEOS)/sdks/iPhoneOS13.0.sdk
+#SYSROOT = $(THEOS)/sdks/iPhoneOS13.0.sdk
 
 include $(THEOS)/makefiles/common.mk
 

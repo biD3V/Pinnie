@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="92k-35-hfp" customClass="PHTableHeaderView">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="zaB-xf-9Ix">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="ewl-JA-1Ul">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                </collectionView>
+            </subviews>
+            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+            <constraints>
+                <constraint firstItem="zaB-xf-9Ix" firstAttribute="centerX" secondItem="92k-35-hfp" secondAttribute="centerX" id="Oqk-qN-OgN"/>
+                <constraint firstItem="zaB-xf-9Ix" firstAttribute="height" secondItem="92k-35-hfp" secondAttribute="height" id="T7z-pT-cZE"/>
+                <constraint firstItem="zaB-xf-9Ix" firstAttribute="centerY" secondItem="92k-35-hfp" secondAttribute="centerY" id="mtH-eZ-dn1"/>
+                <constraint firstItem="zaB-xf-9Ix" firstAttribute="width" secondItem="92k-35-hfp" secondAttribute="width" id="rob-49-msM"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="jzj-4F-PK1"/>
+            <connections>
+                <outlet property="collectionView" destination="zaB-xf-9Ix" id="Yxx-lp-sYd"/>
+            </connections>
+            <point key="canvasLocation" x="-181.15942028985509" y="75"/>
+        </view>
+    </objects>
+</document>
