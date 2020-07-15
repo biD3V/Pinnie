@@ -134,7 +134,7 @@ CGFloat spacing;
             cell.backDrop.image = [self blurredImageWithImage:cell.avatarImage];
             cell.backDrop.alpha = dropGlowAlpha;
         } else {
-            cell.backDrop.image = nil;
+            cell.backDrop.alpha = 0;
         }
         
         if (conversation.unreadCount > 0) {
@@ -183,12 +183,9 @@ CGFloat spacing;
         PHPinController *pinsController = [PHPinController sharedInstance];
         [pinsController conversation:cell.conversation
                            setPinned:false];
-//        NSDictionary *dict = [NSDictionary dictionaryWithObject:self
-//                                                         forKey:@"header"];
         [NSNotificationCenter.defaultCenter postNotificationName:@"PinRemoved"
                                                           object:nil
                                                         userInfo:nil];
-        
     }];
     
     NSString *title;

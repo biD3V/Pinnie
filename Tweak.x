@@ -45,23 +45,26 @@ UICollectionView *collectionView;
 - (void)viewWillAppear:(BOOL)appear {
     %orig;
     if (pinsEnabled) {
-        //CGFloat width = self.tableView.bounds.size.width - self.tableView.safeAreaInsets.left - self.tableView.safeAreaInsets.right;
-        PHTableHeaderView *tableHeader = [[PHTableHeaderView alloc] init];
         
-        collectionView = tableHeader.collectionView;
-        
-        [self.tableView setTableHeaderView:tableHeader];
-        
-        PHPinController *conPins = [PHPinController sharedInstance];
-        [tableHeader setPins:conPins.pinnedMessages];
-        
-        reloadTable();
-        
-        if (layout == 1) {
-            [(UICollectionViewFlowLayout *)tableHeader.collectionView.collectionViewLayout setScrollDirection:1];
-        } else {
-            [(UICollectionViewFlowLayout *)tableHeader.collectionView.collectionViewLayout setScrollDirection:0];
+        if (!self.tableView.tableHeaderView) {
+            PHTableHeaderView *tableHeader = [[PHTableHeaderView alloc] init];
+            
+            collectionView = tableHeader.collectionView;
+            
+            [self.tableView setTableHeaderView:tableHeader];
+            
+            PHPinController *conPins = [PHPinController sharedInstance];
+            [tableHeader setPins:conPins.pinnedMessages];
+            
+            reloadTable();
+            
+//            if (layout == 1) {
+//                [(UICollectionViewFlowLayout *)tableHeader.collectionView.collectionViewLayout setScrollDirection:1];
+//            } else {
+//                [(UICollectionViewFlowLayout *)tableHeader.collectionView.collectionViewLayout setScrollDirection:0];
+//            }
         }
+        
     }
 }
 
@@ -83,12 +86,16 @@ UICollectionView *collectionView;
 
 - (void)viewDidLayoutSubviews {
     %orig;
-    NSLog(@"[Pinnie] willsubviews pins %ld", [PHPinController sharedInstance].pinnedMessages.count);
     PHTableHeaderView *headerView = (PHTableHeaderView *)self.tableView.tableHeaderView;
-    [headerView setNeedsLayout];
-    [headerView layoutIfNeeded];
     CGFloat width = self.tableView.bounds.size.width - self.tableView.safeAreaInsets.left - self.tableView.safeAreaInsets.right;
     [headerView setFrame:CGRectMake(0,0,width,[headerView heightForPins:[PHPinController sharedInstance].pinnedMessages])];
+    if (layout == 1) {
+        [(UICollectionViewFlowLayout *)headerView.collectionView.collectionViewLayout setScrollDirection:1];
+    } else {
+        [(UICollectionViewFlowLayout *)headerView.collectionView.collectionViewLayout setScrollDirection:0];
+    }
+    [headerView setNeedsLayout];
+    [headerView layoutIfNeeded];
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
