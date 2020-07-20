@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) IBOutlet UICollectionView *collectionView;
 @property (nonatomic) NSMutableArray *pins;
 @property (nonatomic) CAGradientLayer *gradient;
+@property (nonatomic) BOOL editing;
 
 +(instancetype)sharedInstance;
 -(CGFloat)heightForPins:(NSMutableArray *)pinConvos;

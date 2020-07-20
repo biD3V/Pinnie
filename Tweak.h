@@ -3,6 +3,7 @@ NSMutableArray *pinnedMessagesIDs;
 NSString *pinnedMessagesIDsKey;
 int layout;
 int avatarSize;
+int columns;
 BOOL pinsEnabled;
 BOOL dropGlowEnabled;
 float dropGlowAlpha;
@@ -41,6 +42,8 @@ NSDictionary *PNESettings = [NSDictionary dictionaryWithContentsOfFile:PNEPrefer
 extern void loadPrefs();
 
 extern void reloadTable();
+
+extern void reloadHeader();
 
 @interface CNContact : NSObject
 @end
@@ -134,5 +137,18 @@ extern void reloadTable();
 @interface CKTranscriptPreviewController : CKViewController
 
 -(void)setConversation:(CKConversation *)conversation;
+
+@end
+
+@interface ConversationList : NSObject
+
+@property (nonatomic,strong,readwrite) NSMutableDictionary *conversationsDictionary;
+
+@end
+
+@interface CKConversationListController : UITableViewController
+
+-(ConversationList *)conversationList;
+-(void)onCellTapped:(NSNotification *)notification;
 
 @end
