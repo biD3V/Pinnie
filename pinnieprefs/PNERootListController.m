@@ -15,9 +15,19 @@
     
     NSDictionary *preferences = [NSDictionary dictionaryWithContentsOfFile:@"/User/Library/Preferences/com.bid3v.pinnieprefs.plist"];
     if ([preferences[@"PinLayout"] intValue] == 1) {
-        [self removeContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"], self.normalSpecifiers[@"ColumnSelector"]]
+        [self removeContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"],
+                                           self.normalSpecifiers[@"ColumnSelectorTitle"],
+                                           self.normalSpecifiers[@"ColumnSelector"]]
                                 animated:YES];
     }
+    if ([preferences[@"AvatarSize"] intValue] == 1) {
+        [self.normalSpecifiers[@"ColumnSelector"] setValues:@[@0,@1] titles:@[@"2",@"3"]];
+    } else {
+        [self.normalSpecifiers[@"ColumnSelector"] setValues:@[@0,@1,@2] titles:@[@"2",@"3",@"4"]];
+    }
+    [self readPreferenceValue:self.normalSpecifiers[@"ColumnSelector"]];
+    [self reloadSpecifier:self.normalSpecifiers[@"ColumnSelector"]
+                 animated:YES];
     if (![preferences[@"DropGlowEnabled"] boolValue]) {
         [self removeContiguousSpecifiers:@[self.glowSpecifiers[@"GlowAlphaTitle"],      self.glowSpecifiers[@"GlowAlphaSlider"]]
                                 animated:YES];
@@ -31,7 +41,7 @@
         //Code to save certain specifiers
         //Add the id of the specifier to the chosenIDs array.
         //Only add the IDs of the specifiers you want to hide
-        NSArray *normalIDs = @[@"SizeSelector", @"ColumnSelector"];
+        NSArray *normalIDs = @[@"SizeSelector", @"ColumnSelectorTitle", @"ColumnSelector"];
         self.normalSpecifiers = (!self.normalSpecifiers) ? [[NSMutableDictionary alloc] init] : self.normalSpecifiers;
         for(PSSpecifier *specifier in _specifiers) {
             if([normalIDs containsObject:[specifier propertyForKey:@"id"]]) {
@@ -76,10 +86,14 @@
     NSString *key = [specifier propertyForKey:@"key"];
     if ([key isEqualToString:@"PinLayout"]) {
         if ([value intValue] == 1) {
-            [self removeContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"], self.normalSpecifiers[@"ColumnSelector"]]
+            [self removeContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"],
+                                               self.normalSpecifiers[@"ColumnSelectorTitle"],
+                                               self.normalSpecifiers[@"ColumnSelector"]]
                                     animated:YES];
-        } else if(![self containsSpecifier:self.normalSpecifiers[@"SizeSelector"]]) {
-            [self insertContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"], self.normalSpecifiers[@"ColumnSelector"]]
+        } else if(![self containsSpecifier:self.normalSpecifiers[@"SizeSelector"]] && ![self containsSpecifier:self.normalSpecifiers[@"ColumnSelectorTitle"]] && ![self containsSpecifier:self.normalSpecifiers[@"ColumnSelector"]]) {
+            [self insertContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"],
+                                               self.normalSpecifiers[@"ColumnSelectorTitle"],
+                                               self.normalSpecifiers[@"ColumnSelector"]]
                             afterSpecifierID:@"LayoutSelector"
                                     animated:YES];
         }
@@ -92,6 +106,15 @@
                             afterSpecifierID:@"GlowSwitch"
                                     animated:YES];
         }
+    } else if ([key isEqualToString:@"AvatarSize"]) {
+        if ([value intValue] == 1) {
+            [self.normalSpecifiers[@"ColumnSelector"] setValues:@[@0,@1] titles:@[@"2",@"3"]];
+        } else {
+            [self.normalSpecifiers[@"ColumnSelector"] setValues:@[@0,@1,@2] titles:@[@"2",@"3",@"4"]];
+        }
+        [self readPreferenceValue:self.normalSpecifiers[@"ColumnSelector"]];
+        [self reloadSpecifier:self.normalSpecifiers[@"ColumnSelector"]
+                     animated:YES];
     }
 }
 
@@ -125,9 +148,19 @@
     //This will look the exact same as step 5, where we only check if specifiers need to be removed
     NSDictionary *preferences = [NSDictionary dictionaryWithContentsOfFile:@"/User/Library/Preferences/com.bid3v.pinnieprefs.plist"];
     if([preferences[@"PinLayout"] intValue] == 1) {
-        [self removeContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"], self.normalSpecifiers[@"ColumnSelector"]]
+        [self removeContiguousSpecifiers:@[self.normalSpecifiers[@"SizeSelector"],
+                                           self.normalSpecifiers[@"ColumnSelectorTitle"],
+                                           self.normalSpecifiers[@"ColumnSelector"]]
                                 animated:YES];
     }
+    if ([preferences[@"AvatarSize"] intValue] == 1) {
+        [self.normalSpecifiers[@"ColumnSelector"] setValues:@[@0,@1] titles:@[@"2",@"3"]];
+    } else {
+        [self.normalSpecifiers[@"ColumnSelector"] setValues:@[@0,@1,@2] titles:@[@"2",@"3",@"4"]];
+    }
+    [self readPreferenceValue:self.normalSpecifiers[@"ColumnSelector"]];
+    [self reloadSpecifier:self.normalSpecifiers[@"ColumnSelector"]
+                 animated:YES];
     if (![preferences[@"DropGlowEnabled"] boolValue]) {
         [self removeContiguousSpecifiers:@[self.glowSpecifiers[@"GlowAlphaTitle"],      self.glowSpecifiers[@"GlowAlphaSlider"]]
                                 animated:YES];

@@ -15,6 +15,7 @@
 CGFloat viewWidth;
 CGFloat spacing;
 CGFloat twoSpacing;
+CGFloat twoSpacingSmall;
 CGFloat fourSpacing;
 
 +(instancetype)sharedInstance {
@@ -47,14 +48,26 @@ CGFloat fourSpacing;
     switch (columns) {
         case 0:
             if (layout == 0) {
-                if (pinCount == 0) {
-                    height = 0;
-                } else if (pinCount <= 2 && pinCount > 0) {
-                    height = width * 7 / 16;
-                } else if (pinCount <= 4 && pinCount > 2) {
-                    height = width * 3 / 4;
+                if (avatarSize == 0) {
+                    if (pinCount == 0) {
+                        height = 0;
+                    } else if (pinCount <= 2 && pinCount > 0) {
+                        height = width * .35;
+                    } else if (pinCount <= 4 && pinCount > 2) {
+                        height = width * .6;
+                    } else {
+                        height = width * .7;
+                    }
                 } else {
-                    height = width;
+                    if (pinCount == 0) {
+                        height = 0;
+                    } else if (pinCount <= 2 && pinCount > 0) {
+                        height = width * 7 / 16;
+                    } else if (pinCount <= 4 && pinCount > 2) {
+                        height = width * 3 / 4;
+                    } else {
+                        height = width;
+                    }
                 }
             } else {
                 height = width * .3;
@@ -67,9 +80,9 @@ CGFloat fourSpacing;
                 } else if (pinCount <= 4 && pinCount > 0) {
                     height = width * .35;
                 } else if (pinCount <= 8 && pinCount > 4) {
-                    height = width * .7;
+                    height = width * .6;
                 } else {
-                    height = width * .8;
+                    height = width * .7;
                 }
             } else {
                 height = width * .3;
@@ -111,6 +124,7 @@ CGFloat fourSpacing;
     }
     
     twoSpacing = viewWidth * .5 / 3;
+    twoSpacingSmall = viewWidth * .2;
     fourSpacing = viewWidth * .04;
 }
 
@@ -288,7 +302,7 @@ CGFloat fourSpacing;
         if (avatarSize == 0) {
             switch (columns) {
                 case 0:
-                    return UIEdgeInsetsMake(spacing, spacing, spacing + spacing / 2, spacing);
+                    return UIEdgeInsetsMake(spacing, twoSpacingSmall, spacing + viewWidth / 32, twoSpacingSmall);
                     break;
                 case 2:
                     return UIEdgeInsetsMake(fourSpacing, fourSpacing, fourSpacing + fourSpacing / 2, fourSpacing);
@@ -319,7 +333,7 @@ CGFloat fourSpacing;
     if (avatarSize == 0) {
         switch (columns) {
             case 0:
-                return spacing;
+                return twoSpacingSmall;
                 break;
             case 2:
                 return fourSpacing;
@@ -348,7 +362,7 @@ CGFloat fourSpacing;
         if (avatarSize == 0) {
             switch (columns) {
                 case 0:
-                    return spacing;
+                    return spacing * 1.2;
                     break;
                 case 2:
                     return viewWidth * 1 / 8;
