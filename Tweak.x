@@ -96,8 +96,14 @@ UICollectionView *collectionView;
     PHTableHeaderView *headerView = (PHTableHeaderView *)self.tableView.tableHeaderView;
     CGFloat width = self.tableView.bounds.size.width - self.tableView.safeAreaInsets.left - self.tableView.safeAreaInsets.right;
     
-    for (CKConversation *conversation in (NSArray *)[self.conversationList.conversationsDictionary objectForKey:@0]) {
-        [[PHPinController sharedInstance] conversationIsPinned:conversation];
+    if (@available(iOS 13.3, *)) {
+        for (CKConversation *conversation in (NSArray *)[self.conversationList.conversationsDictionary objectForKey:@0]) {
+            [[PHPinController sharedInstance] conversationIsPinned:conversation];
+        }
+    } else {
+        for (CKConversation *conversation in [self.conversationList valueForKey:@"_trackedConversations"]) {
+            [[PHPinController sharedInstance] conversationIsPinned:conversation];
+        }
     }
 
     [headerView setFrame:CGRectMake(0,0,width,0)];

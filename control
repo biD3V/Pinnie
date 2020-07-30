@@ -2,7 +2,7 @@ Package: com.bid3v.pinnie
 Name: Pinnie
 Depends: firmware (>= 11.0), mobilesubstrate, preferenceloader
 Conflicts: com.ahmad.pinheads, com.twickd.nicho1asdev.caim
-Version: 0.2.0
+Version: 0.2.1
 Architecture: iphoneos-arm
 Description: Pin messages like iOS 14!
 Maintainer: biD3V

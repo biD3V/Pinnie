@@ -140,7 +140,9 @@ extern void reloadHeader();
 
 @end
 
-@interface ConversationList : NSObject
+@interface ConversationList : NSObject {
+    NSMutableArray *_trackedConversations;
+}
 
 @property (nonatomic,strong,readwrite) NSMutableDictionary *conversationsDictionary;
 
