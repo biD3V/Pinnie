@@ -33,4 +33,13 @@
                                                     userInfo:nil];
 }
 
+- (void)unpin:(UIButton *)paramSender {
+    PHPinController *pinsController = [PHPinController sharedInstance];
+    [pinsController conversation:self.conversation
+                       setPinned:false];
+    [NSNotificationCenter.defaultCenter postNotificationName:@"PinRemoved"
+                                                      object:nil
+                                                    userInfo:nil];
+}
+
 @end

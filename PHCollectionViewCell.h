@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) CKConversation *conversation;
 @property (nonatomic) UIImage * avatarImage;
 @property (nonatomic) IBOutlet UIImageView *unreadDot;
+@property (nonatomic) IBOutlet UIButton *unpinButton;
 
 @end
 

@@ -21,7 +21,7 @@
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hSs-UW-IaT">
                         <rect key="frame" x="-2.5" y="55" width="55" height="14.5"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
@@ -32,6 +32,12 @@
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="FJ8-fK-OWw">
                         <rect key="frame" x="-10.5" y="21.5" width="7.5" height="7.5"/>
                     </imageView>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zTh-BG-vzW">
+                        <rect key="frame" x="37.5" y="0.0" width="12.5" height="12.5"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="zTh-BG-vzW" secondAttribute="height" multiplier="1:1" id="br9-t5-RCI"/>
+                        </constraints>
+                    </button>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <gestureRecognizers/>
@@ -44,8 +50,11 @@
                     <constraint firstItem="rOq-HN-qBv" firstAttribute="centerY" secondItem="XyP-VU-BRN" secondAttribute="centerY" id="LMZ-Pp-Bhr"/>
                     <constraint firstItem="FJ8-fK-OWw" firstAttribute="height" secondItem="XyP-VU-BRN" secondAttribute="height" multiplier="0.15" id="Q36-e5-hCb"/>
                     <constraint firstItem="FJ8-fK-OWw" firstAttribute="trailing" secondItem="XyP-VU-BRN" secondAttribute="leading" constant="-3" id="R0q-6U-haX"/>
+                    <constraint firstItem="zTh-BG-vzW" firstAttribute="trailing" secondItem="XyP-VU-BRN" secondAttribute="trailing" id="TVl-Da-lpW"/>
+                    <constraint firstItem="zTh-BG-vzW" firstAttribute="width" secondItem="XyP-VU-BRN" secondAttribute="width" multiplier="0.25" id="gJZ-Nh-ZKW"/>
                     <constraint firstItem="fKR-cf-kC0" firstAttribute="centerX" secondItem="XyP-VU-BRN" secondAttribute="centerX" id="iLd-fk-SWc"/>
                     <constraint firstItem="hSs-UW-IaT" firstAttribute="top" secondItem="XyP-VU-BRN" secondAttribute="bottom" multiplier="1.1" id="mIn-Jl-5Pb"/>
+                    <constraint firstItem="zTh-BG-vzW" firstAttribute="top" secondItem="XyP-VU-BRN" secondAttribute="top" id="moR-aZ-BDD"/>
                     <constraint firstItem="FJ8-fK-OWw" firstAttribute="centerY" secondItem="XyP-VU-BRN" secondAttribute="centerY" id="tNO-0w-yMd"/>
                     <constraint firstItem="hSs-UW-IaT" firstAttribute="centerX" secondItem="XyP-VU-BRN" secondAttribute="centerX" id="vBA-U1-rWz"/>
                     <constraint firstItem="rOq-HN-qBv" firstAttribute="width" secondItem="XyP-VU-BRN" secondAttribute="width" multiplier="0.98" id="wPK-ye-B8w"/>
@@ -58,6 +67,7 @@
                 <outlet property="avatarView" destination="rOq-HN-qBv" id="8vj-AT-OOo"/>
                 <outlet property="backDrop" destination="fKR-cf-kC0" id="7FR-2z-t3T"/>
                 <outlet property="name" destination="hSs-UW-IaT" id="hPU-mn-a09"/>
+                <outlet property="unpinButton" destination="zTh-BG-vzW" id="PFK-eV-rek"/>
                 <outlet property="unreadDot" destination="FJ8-fK-OWw" id="bdi-hO-Mq5"/>
             </connections>
             <point key="canvasLocation" x="131.8840579710145" y="130.58035714285714"/>

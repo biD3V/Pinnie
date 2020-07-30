@@ -6,29 +6,113 @@
 //
 
 #import "Tweak.h"
-#import "PHTableViewCell.h"
+#import "PHTableHeaderView.h"
 
-@implementation PHTableViewCell
+@implementation PHTableHeaderView
 
 @synthesize pins;
 
 CGFloat viewWidth;
 CGFloat spacing;
+CGFloat twoSpacing;
+CGFloat twoSpacingSmall;
+CGFloat fourSpacing;
 
 +(instancetype)sharedInstance {
-    static PHTableViewCell *sharedInstance = nil;
+    static PHTableHeaderView *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[PHTableViewCell alloc] init];
+        sharedInstance = [[PHTableHeaderView alloc] init];
         // Do any other initialisation stuff here
     });
     return sharedInstance;
+}
+
+- (instancetype)init {
+    self = [super init];
+    pins = [[PHPinController sharedInstance] pinnedMessages];
+    NSBundle *bundle = [[NSBundle alloc] initWithPath:@"/Library/Application Support/Pinnie/Pinnie.bundle"];
+    self = [bundle loadNibNamed:@"PHTableHeaderView"
+                          owner:self
+                        options:nil].firstObject;
+    return self;
+}
+
+- (CGFloat)heightForPins:(NSMutableArray *)pinConvos {
+    CGFloat height;
+    UITableView *tableView = (UITableView *)self.superview;
+    CGFloat width = tableView.frame.size.width;
+    CGFloat pinCount = pinConvos.count;
+    NSLog(@"[Pinnie] pinConvos.count = %f", pinCount);
+    NSLog(@"[Pinnie] layout = %d", layout);
+    switch (columns) {
+        case 0:
+            if (layout == 0) {
+                if (avatarSize == 0) {
+                    if (pinCount == 0) {
+                        height = 0;
+                    } else if (pinCount <= 2 && pinCount > 0) {
+                        height = width * .35;
+                    } else if (pinCount <= 4 && pinCount > 2) {
+                        height = width * .6;
+                    } else {
+                        height = width * .7;
+                    }
+                } else {
+                    if (pinCount == 0) {
+                        height = 0;
+                    } else if (pinCount <= 2 && pinCount > 0) {
+                        height = width * 7 / 16;
+                    } else if (pinCount <= 4 && pinCount > 2) {
+                        height = width * 3 / 4;
+                    } else {
+                        height = width;
+                    }
+                }
+            } else {
+                height = width * .3;
+            }
+            break;
+        case 2:
+            if (layout == 0) {
+                if (pinCount == 0) {
+                    height = 0;
+                } else if (pinCount <= 4 && pinCount > 0) {
+                    height = width * .35;
+                } else if (pinCount <= 8 && pinCount > 4) {
+                    height = width * .6;
+                } else {
+                    height = width * .7;
+                }
+            } else {
+                height = width * .3;
+            }
+            break;
+        default:
+            if (layout == 0) {
+                if (pinCount == 0) {
+                    height = 0;
+                } else if (pinCount <= 3 && pinCount > 0) {
+                    height = width * 7 / 16;
+                } else if (pinCount <= 6 && pinCount > 3) {
+                    height = width * 3 / 4;
+                } else {
+                    height = width;
+                }
+            } else {
+                height = width * .3;
+            }
+            break;
+    }
+    NSLog(@"[Pinnie] pins = %@", pins);
+    return height;
 }
 
 -(void)layoutSubviews {
     [super layoutSubviews];
     
     viewWidth = self.bounds.size.width;
+    
     if (layout == 0) {
         if (avatarSize == 0) {
             spacing = viewWidth * 0.1;
@@ -38,6 +122,10 @@ CGFloat spacing;
     } else {
         spacing = viewWidth / 5 / 7;
     }
+    
+    twoSpacing = viewWidth * .5 / 3;
+    twoSpacingSmall = viewWidth * .2;
+    fourSpacing = viewWidth * .04;
 }
 
 - (UIImage *)blurredImageWithImage:(UIImage *)sourceImage{
@@ -73,12 +161,6 @@ CGFloat spacing;
     [self.collectionView registerNib:[UINib nibWithNibName:@"PHCollectionViewCell" bundle:[[NSBundle alloc] initWithPath:@"/Library/Application Support/Pinnie/Pinnie.bundle"]] forCellWithReuseIdentifier:@"phCollectionCell"];
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
-}
-
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return self.pins.count;
 }
@@ -106,25 +188,47 @@ CGFloat spacing;
             cell.backDrop.image = [self blurredImageWithImage:cell.avatarImage];
             cell.backDrop.alpha = dropGlowAlpha;
         } else {
-            cell.backDrop.image = nil;
+            cell.backDrop.alpha = 0;
         }
         
-        if (conversation.unreadCount > 0) {
-            if (@available(iOS 13, *)) {
-                cell.unreadDot.image = [UIImage systemImageNamed:@"circle.fill"];
-            } else {
-                NSBundle *bundle = [[NSBundle alloc] initWithPath:@"/Library/Application Support/Pinnie/Pinnie.bundle"];
-                
-                UIImage *circleImage = [UIImage imageNamed:@"circle.fill"
-                                                   inBundle:bundle
-                              compatibleWithTraitCollection:nil];
-                
-                cell.unreadDot.image = [circleImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-            }
-            
-            cell.unreadDot.tintColor = [UIColor systemBlueColor];
+        if (@available(iOS 13, *)) {
+            cell.unreadDot.image = [UIImage systemImageNamed:@"circle.fill"];
+            [cell.unpinButton setImage:[UIImage systemImageNamed:@"minus.circle.fill"]
+                              forState:UIControlStateNormal];
         } else {
-            cell.unreadDot.image = nil;
+            NSBundle *bundle = [[NSBundle alloc] initWithPath:@"/Library/Application Support/Pinnie/Pinnie.bundle"];
+            
+            UIImage *circleImage = [UIImage imageNamed:@"circle.fill"
+                                               inBundle:bundle
+                          compatibleWithTraitCollection:nil];
+            
+            UIImage *minusImage = [UIImage imageNamed:@"minus.circle.fill"
+                                             inBundle:bundle
+                        compatibleWithTraitCollection:nil];
+            
+            cell.unreadDot.image = [circleImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            [cell.unpinButton setImage:[minusImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
+                              forState:UIControlStateNormal];
+        }
+        
+        cell.unreadDot.tintColor = [UIColor systemBlueColor];
+        cell.unpinButton.tintColor = [UIColor systemRedColor];
+        
+        if (conversation.unreadCount > 0) {
+            cell.unreadDot.alpha = 1;
+        } else {
+            cell.unreadDot.alpha = 0;
+        }
+        
+        [cell.unpinButton addTarget:cell
+                             action:@selector(unpin:)
+                   forControlEvents:UIControlEventTouchUpInside];
+        if (self.editing) {
+            cell.unpinButton.userInteractionEnabled = 1;
+            cell.unpinButton.alpha = 1;
+        } else {
+            cell.unpinButton.userInteractionEnabled = 0;
+            cell.unpinButton.alpha = 0;
         }
         
         cell.conversation = conversation;
@@ -155,11 +259,9 @@ CGFloat spacing;
         PHPinController *pinsController = [PHPinController sharedInstance];
         [pinsController conversation:cell.conversation
                            setPinned:false];
-        
         [NSNotificationCenter.defaultCenter postNotificationName:@"PinRemoved"
                                                           object:nil
                                                         userInfo:nil];
-        
     }];
     
     NSString *title;
@@ -196,21 +298,79 @@ CGFloat spacing;
 }
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
-    if (layout == 0 && avatarSize == 0) {
-        return UIEdgeInsetsMake(spacing, spacing, spacing + spacing / 2, spacing);
+    if (layout == 0) {
+        if (avatarSize == 0) {
+            switch (columns) {
+                case 0:
+                    return UIEdgeInsetsMake(spacing, twoSpacingSmall, spacing + viewWidth / 32, twoSpacingSmall);
+                    break;
+                case 2:
+                    return UIEdgeInsetsMake(fourSpacing, fourSpacing, fourSpacing + fourSpacing / 2, fourSpacing);
+                    break;
+                default:
+                    return UIEdgeInsetsMake(spacing, spacing, spacing + spacing / 2, spacing);
+                    break;
+            }
+        } else {
+            switch (columns) {
+                case 0:
+                    return UIEdgeInsetsMake(spacing, twoSpacing, spacing + spacing / 2, twoSpacing);
+                    break;
+                case 2:
+                    return UIEdgeInsetsMake(spacing, spacing, spacing + spacing / 2, spacing);
+                    break;
+                default:
+                    return UIEdgeInsetsMake(spacing, spacing, spacing + spacing / 2, spacing);
+                    break;
+            }
+        }
     } else {
         return UIEdgeInsetsMake(spacing, spacing, spacing + viewWidth / 32, spacing);
     }
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionView *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-    return spacing;
+    if (avatarSize == 0) {
+        switch (columns) {
+            case 0:
+                return twoSpacingSmall;
+                break;
+            case 2:
+                return fourSpacing;
+                break;
+            default:
+                return spacing;
+                break;
+        }
+    } else {
+        switch (columns) {
+            case 0:
+                return twoSpacing;
+                break;
+            case 2:
+                return spacing;
+                break;
+            default:
+                return spacing;
+                break;
+        }
+    }
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionView *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
     if (layout == 0) {
         if (avatarSize == 0) {
-            return spacing * 1.2;
+            switch (columns) {
+                case 0:
+                    return spacing * 1.2;
+                    break;
+                case 2:
+                    return viewWidth * 1 / 8;
+                    break;
+                default:
+                    return spacing * 1.2;
+                    break;
+            }
         } else {
             return viewWidth * 3 / 32;
         }
@@ -222,5 +382,7 @@ CGFloat spacing;
 - (void)setPins:(NSMutableArray *)pinned {
     pins = pinned;
 }
+
+
 
 @end

@@ -1,7 +1,9 @@
 #import "Tweak.h"
 #import "PHPinController.h"
-#import "PHTableViewCell.h"
+#import "PHTableHeaderView.h"
 #import "PHCollectionViewCell.h"
+
+extern CFStringRef IMChatMessageReceivedNotification;
 
 void restoreDefaults() {
     if (!userDefaults) return;
@@ -21,6 +23,7 @@ void loadPrefs() {
     NSLog(@"[PinniePrefs] %@", PNESettings);
     PNEIntPref(layout, PinLayout, 0);
     PNEIntPref(avatarSize, AvatarSize, 1);
+    PNEIntPref(columns, Columns, 1);
     PNEBoolPref(pinsEnabled, PinsEnabled, YES);
     PNEBoolPref(dropGlowEnabled, DrowGlowEnabled, YES);
     PNEFloatPref(dropGlowAlpha, GlowAlpha, 0.75);
@@ -32,15 +35,37 @@ void reloadTable () {
                                                     userInfo:nil];
 }
 
-@interface CKConversationListController : UITableViewController
+void reloadHeader() {
+    [NSNotificationCenter.defaultCenter postNotificationName:@"ReloadHeader"
+                                                      object:nil
+                                                    userInfo:nil];
+}
 
--(void)onCellTapped:(NSNotification *)notification;
 
-@end
 
 %hook CKConversationListController
 
 UICollectionView *collectionView;
+
+- (void)viewWillAppear:(BOOL)appear {
+    %orig;
+    if (pinsEnabled) {
+        
+        if (!self.tableView.tableHeaderView) {
+            PHTableHeaderView *tableHeader = [[PHTableHeaderView alloc] init];
+            
+            collectionView = tableHeader.collectionView;
+            
+            [self.tableView setTableHeaderView:tableHeader];
+            
+            PHPinController *conPins = [PHPinController sharedInstance];
+            [tableHeader setPins:conPins.pinnedMessages];
+            
+            reloadTable();
+        }
+        reloadHeader();
+    }
+}
 
 -(void)viewDidLoad {
     %orig;
@@ -56,64 +81,91 @@ UICollectionView *collectionView;
                                            selector:@selector(reloadTable:)
                                                name:@"ReloadTable"
                                              object:nil];
-    
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(reloadHeader:)
+                                               name:@"ReloadHeader"
+                                             object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(reloadHeader:)
+                                               name:(__bridge NSString *)IMChatMessageReceivedNotification
+                                             object:nil];
 }
 
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (void)viewDidLayoutSubviews {
     %orig;
-    if (!pinsEnabled) return %orig;
-    if (section == 0) {
-        return 1;
+    PHTableHeaderView *headerView = (PHTableHeaderView *)self.tableView.tableHeaderView;
+    CGFloat width = self.tableView.bounds.size.width - self.tableView.safeAreaInsets.left - self.tableView.safeAreaInsets.right;
+    
+    if (@available(iOS 13.3, *)) {
+        for (CKConversation *conversation in (NSArray *)[self.conversationList.conversationsDictionary objectForKey:@0]) {
+            [[PHPinController sharedInstance] conversationIsPinned:conversation];
+        }
     } else {
-        return %orig;
+        for (CKConversation *conversation in [self.conversationList valueForKey:@"_trackedConversations"]) {
+            [[PHPinController sharedInstance] conversationIsPinned:conversation];
+        }
+    }
+
+    [headerView setFrame:CGRectMake(0,0,width,0)];
+    
+    [UIView animateWithDuration:0.5
+                     animations:^{
+        [headerView setFrame:CGRectMake(0,0,width,[headerView heightForPins:[PHPinController sharedInstance].pinnedMessages])];
+    }];
+    
+    if (layout == 1) {
+        [(UICollectionViewFlowLayout *)headerView.collectionView.collectionViewLayout setScrollDirection:1];
+    } else {
+        [(UICollectionViewFlowLayout *)headerView.collectionView.collectionViewLayout setScrollDirection:0];
+    }
+    
+    [headerView setNeedsLayout];
+    [headerView layoutIfNeeded];
+}
+
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated {
+    %orig;
+    if (pinsEnabled) {
+        PHTableHeaderView *headerView = (PHTableHeaderView *)self.tableView.tableHeaderView;
+        headerView.editing = editing;
+        for (PHCollectionViewCell *pinCell in headerView.collectionView.subviews) {
+            if ([pinCell isKindOfClass:[PHCollectionViewCell class]]) {
+                if (editing) {
+                    pinCell.unpinButton.userInteractionEnabled = 1;
+                    [UIView animateWithDuration:0.5
+                                     animations:^{
+                        pinCell.unpinButton.alpha = 1;
+                    }];
+                } else {
+                    pinCell.unpinButton.userInteractionEnabled = 0;
+                    [UIView animateWithDuration:0.5
+                                     animations:^{
+                        pinCell.unpinButton.alpha = 0;
+                    }];
+                }
+            }
+        }
     }
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     %orig;
     if (!pinsEnabled) return %orig;
-    if (indexPath == [NSIndexPath indexPathForRow:0 inSection:0]) {
+    
+    CKConversationListStandardCell *convoCell = (CKConversationListStandardCell *)%orig;
+    PHPinController *pins = [PHPinController sharedInstance];
+    
+    if ([convoCell isKindOfClass:%c(CKConversationListStandardCell)] && [pins conversationIsPinned:convoCell.conversation]) {
         
-        PHTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"phCell"];
-        if (!cell) {
-            [tableView registerNib:[UINib nibWithNibName:@"PHTableViewCell" bundle:[[NSBundle alloc] initWithPath:@"/Library/Application Support/Pinnie/Pinnie.bundle"]] forCellReuseIdentifier:@"phCell"];
-            cell = [tableView dequeueReusableCellWithIdentifier:@"phCell"];
-        }
-        
-        collectionView = cell.collectionView;
-        
-        PHPinController *pins = [PHPinController sharedInstance];
-        [cell setPins:pins.pinnedMessages];
-        
-        [cell.collectionView performBatchUpdates:^{
-            [cell.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+        [UIView transitionWithView:convoCell
+                          duration:0.5
+                           options:UIViewAnimationOptionTransitionCrossDissolve
+                        animations:^(void){
+            [convoCell setHidden:true];
         } completion:nil];
         
-        if (layout == 1) {
-            [(UICollectionViewFlowLayout *)cell.collectionView.collectionViewLayout setScrollDirection:1];
-        } else {
-            [(UICollectionViewFlowLayout *)cell.collectionView.collectionViewLayout setScrollDirection:0];
-        }
-        
-        return cell;
+        return convoCell;
     } else {
-        
-        CKConversationListStandardCell *convoCell = (CKConversationListStandardCell *)%orig;
-        PHPinController *pins = [PHPinController sharedInstance];
-        
-        if ([convoCell isKindOfClass:%c(CKConversationListStandardCell)] && [pins conversationIsPinned:convoCell.conversation]) {
-            
-            [UIView transitionWithView:convoCell
-                              duration:0.5
-                               options:UIViewAnimationOptionTransitionCrossDissolve
-                            animations:^(void){
-                [convoCell setHidden:true];
-            } completion:nil];
-            
-            return convoCell;
-        } else {
-            return %orig;
-        }
         return %orig;
     }
 }
@@ -121,37 +173,16 @@ UICollectionView *collectionView;
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     %orig;
     if (!pinsEnabled) return %orig;
-    PHTableViewCell *cell = (PHTableViewCell *)[self tableView:tableView
-                                         cellForRowAtIndexPath:indexPath];
     
     CKConversationListStandardCell *convoCell = (CKConversationListStandardCell *)[self tableView:tableView
                                                                             cellForRowAtIndexPath:indexPath];
     
     PHPinController *pins = [PHPinController sharedInstance];
     
-    if (![cell isKindOfClass:%c(PHTableViewCell)]) {
-        if ([convoCell isKindOfClass:%c(CKConversationListStandardCell)] && [pins conversationIsPinned:convoCell.conversation]) {
-            return 0;
-        } else {
-            return %orig;
-        }
+    if ([convoCell isKindOfClass:%c(CKConversationListStandardCell)] && [pins conversationIsPinned:convoCell.conversation]) {
+        return 0;
     } else {
-        CGFloat height;
-        CGFloat cellWidth = cell.frame.size.width;
-        if (layout == 0) {
-            if (cell.pins.count == 0) {
-                height = 0;
-            } else if (cell.pins.count <= 3 && cell.pins.count != 0) {
-                height = cellWidth * 3 / 8;
-            } else if (cell.pins.count <= 6 && cell.pins.count > 3) {
-                height = cellWidth * 11 / 16;
-            } else {
-                height = cellWidth * 3 / 4;
-            }
-        } else {
-            height = cellWidth * .3;
-        }
-        return height;
+        return %orig;
     }
 }
 
@@ -173,9 +204,7 @@ UICollectionView *collectionView;
 
 %new
 -(void)onPinRemoved:(NSNotification *)notification {
-    [self.tableView performBatchUpdates:^{
-        [self.tableView reloadData];
-    } completion:nil];
+    reloadTable();
 }
 
 %new
@@ -190,9 +219,7 @@ UICollectionView *collectionView;
                                                                           handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
         [pins conversation:conversation
                  setPinned:true];
-        [tableView performBatchUpdates:^{
-            [tableView reloadData];
-        } completion:nil];
+        reloadTable();
         completionHandler(true);
     }];
     
@@ -205,13 +232,38 @@ UICollectionView *collectionView;
 
 %new
 - (void)reloadTable:(NSNotification *)notification {
+    PHTableHeaderView *headerView = (PHTableHeaderView *)self.tableView.tableHeaderView;
+    CGFloat width = self.tableView.bounds.size.width - self.tableView.safeAreaInsets.left - self.tableView.safeAreaInsets.right;
+    [UIView animateWithDuration:0.5
+                     animations:^{
+        [headerView setFrame:CGRectMake(0,0,width,[headerView heightForPins:[PHPinController sharedInstance].pinnedMessages])];
+    }];
     [self.tableView performBatchUpdates:^{
-        [self.tableView reloadData];
+        NSRange range = NSMakeRange(0, [self numberOfSectionsInTableView:self.tableView]);
+        NSIndexSet *sections = [NSIndexSet indexSetWithIndexesInRange:range];
+        [self.tableView reloadSections:sections withRowAnimation:UITableViewRowAnimationAutomatic];
     } completion:nil];
     
     [collectionView performBatchUpdates:^{
         [collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
     } completion:nil];
+}
+
+%new
+- (void)reloadHeader:(NSNotification *)notification {
+    [UIView animateWithDuration:0.5
+                     animations:^{
+        PHTableHeaderView *header = (PHTableHeaderView *)self.tableView.tableHeaderView;
+        for (PHCollectionViewCell *pinCell in header.collectionView.subviews) {
+            if ([pinCell isKindOfClass:[PHCollectionViewCell class]]) {
+                if (pinCell.conversation.unreadCount > 0) {
+                    pinCell.unreadDot.alpha = 1;
+                } else {
+                    pinCell.unreadDot.alpha = 0;
+                }
+            }
+        }
+    }];
 }
 
 %end

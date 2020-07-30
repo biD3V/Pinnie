@@ -67,6 +67,42 @@
 			<string>com.bid3v.pinnieprefs-prefschanged</string>
 		</dict>
 		<dict>
+			<key>id</key>
+			<string>ColumnSelectorTitle</string>
+			<key>cellClass</key>
+			<string>PNEStaticTextNoSeparatorCell</string>
+			<key>label</key>
+			<string>Columns</string>
+			<key>height</key>
+			<integer>23</integer>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>id</key>
+			<string>ColumnSelector</string>
+			<key>validValues</key>
+			<array>
+				<string>0</string>
+				<string>1</string>
+				<string>2</string>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>2</string>
+				<string>3</string>
+				<string>4</string>
+			</array>
+			<key>default</key>
+			<string>1</string>
+			<key>key</key>
+			<string>Columns</string>
+			<key>defaults</key>
+			<string>com.bid3v.pinnieprefs</string>
+			<key>PostNotification</key>
+			<string>com.bid3v.pinnieprefs-prefschanged</string>
+		</dict>
+		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
